@@ -1,4 +1,4 @@
-# Automatic-forum-reading 阅读记录与推荐扩展
+# Automatic-forum-reader 阅读记录与推荐扩展
 
 一个智能的 Chrome/Edge 浏览器扩展，用于记录在 `linux.do` 论坛的阅读行为，并提供基于用户兴趣的个性化推荐。
 

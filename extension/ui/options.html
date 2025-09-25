@@ -1,0 +1,268 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Linux.do 阅读记录 - 设置</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+      }
+      .header {
+        background: #007cff;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        padding: 30px;
+      }
+      .section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+      }
+      .section:last-child {
+        border-bottom: none;
+      }
+      .section h2 {
+        margin: 0 0 15px 0;
+        color: #333;
+        font-size: 18px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #555;
+      }
+      input[type="number"] {
+        width: 100px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      input[type="file"] {
+        margin-top: 5px;
+      }
+      button {
+        background: #007cff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      button.danger {
+        background: #dc3545;
+      }
+      button.danger:hover {
+        background: #c82333;
+      }
+      button.success {
+        background: #28a745;
+      }
+      button.success:hover {
+        background: #218838;
+      }
+      .status {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 4px;
+        display: none;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+      }
+      .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007cff;
+        margin-bottom: 5px;
+      }
+      .stat-label {
+        font-size: 14px;
+        color: #666;
+      }
+      .help-text {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+      .warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Linux.do 阅读记录与推荐</h1>
+        <p>设置和管理你的阅读数据</p>
+      </div>
+      
+      <div class="content">
+        <!-- 统计信息 -->
+        <div class="section">
+          <h2>📊 阅读统计</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number" id="total-events">-</div>
+              <div class="stat-label">总阅读事件</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="total-threads">-</div>
+              <div class="stat-label">本地帖子数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="new-threads">-</div>
+              <div class="stat-label">新帖子数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="completed-today">-</div>
+              <div class="stat-label">今日完成阅读</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="fetch-count">-</div>
+              <div class="stat-label">抓取次数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="last-fetch">-</div>
+              <div class="stat-label">上次抓取</div>
+            </div>
+          </div>
+          <button id="btn-refresh-stats">刷新统计</button>
+        </div>
+
+        <!-- 阅读阈值设置 -->
+        <div class="section">
+          <h2>⚙️ 阅读阈值设置</h2>
+          <div class="form-group">
+            <label for="threshold-seconds">有效阅读时长（秒）</label>
+            <input type="number" id="threshold-seconds" min="5" max="300" value="20" />
+            <div class="help-text">页面停留时间超过此值才计入有效阅读</div>
+          </div>
+          <div class="form-group">
+            <label for="threshold-scroll">滚动深度阈值（%）</label>
+            <input type="number" id="threshold-scroll" min="10" max="100" value="50" />
+            <div class="help-text">滚动深度超过此值才标记为完成阅读</div>
+          </div>
+          <button id="btn-save">保存设置</button>
+          <div id="saved" class="status success" style="display: none;">设置已保存</div>
+        </div>
+
+        <!-- 数据管理 -->
+        <div class="section">
+          <h2>💾 数据管理</h2>
+          <div class="warning">
+            <strong>注意：</strong>数据导出和清空操作会立即生效，请谨慎操作。
+          </div>
+          
+          <div class="form-group">
+            <label>导出数据</label>
+            <button id="btn-export" class="success">📥 导出 JSON 数据</button>
+            <div class="help-text">将所有阅读数据导出为 JSON 文件，用于备份或分析</div>
+          </div>
+          
+          <div class="form-group">
+            <label>导入数据</label>
+            <button id="btn-import">📤 导入 JSON 数据</button>
+            <input type="file" id="file-import" accept=".json" style="display: none;" />
+            <div class="help-text">从 JSON 文件导入阅读记录和偏好数据（不包含帖子数据）</div>
+            <div id="import-progress" class="status" style="display: none;"></div>
+            <div id="import-result" class="status" style="display: none;"></div>
+          </div>
+          
+          <div class="form-group">
+            <label>清空数据</label>
+            <button id="btn-clear" class="danger">🗑️ 清空所有数据</button>
+            <div class="help-text">删除所有阅读记录和帖子数据，此操作不可撤销</div>
+          </div>
+          
+          <div id="clear-status" class="status" style="display: none;"></div>
+        </div>
+
+        <!-- 抓取设置 -->
+        <div class="section">
+          <h2>🔄 内容抓取</h2>
+          <div class="form-group">
+            <label>手动抓取</label>
+            <button id="btn-fetch">🚀 立即抓取新内容</button>
+            <div class="help-text">手动触发一次新帖子抓取，通常每30分钟自动执行</div>
+          </div>
+          <div id="fetch-status" class="status" style="display: none;"></div>
+        </div>
+
+        <!-- 关于信息 -->
+        <div class="section">
+          <h2>ℹ️ 关于</h2>
+          <p><strong>版本：</strong> 0.1.0</p>
+          <p><strong>功能：</strong></p>
+          <ul>
+            <li>自动记录在 linux.do 的阅读行为</li>
+            <li>增量抓取新帖子内容</li>
+            <li>基于阅读历史的智能推荐</li>
+            <li>本地数据存储，保护隐私</li>
+          </ul>
+          <p><strong>数据存储：</strong> 所有数据存储在浏览器本地，不会上传到任何服务器。</p>
+        </div>
+      </div>
+    </div>
+    
+    <script src="options.js"></script>
+  </body>
+</html>

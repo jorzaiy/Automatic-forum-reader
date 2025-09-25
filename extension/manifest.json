@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "论坛助手",
+  "version": "0.2.0",
+  "description": "自动记录论坛阅读行为，提供个性化推荐",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://linux.do/*",
+    "https://www.nodeseek.com/*"
+  ],
+  "background": {
+    "service_worker": "background/index.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://linux.do/*",
+        "https://www.nodeseek.com/*"
+      ],
+      "js": ["content/reader-tracker.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "action": {
+    "default_popup": "ui/popup.html",
+    "default_title": "论坛助手",
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    }
+  },
+  "options_page": "ui/options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["vendor/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

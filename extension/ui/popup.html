@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Linux.do 推荐</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>多论坛推荐</h1>
+      <div id="stats">加载中...</div>
+      <div id="fetch-status" style="font-size: 12px; color: #666; margin: 8px 0;"></div>
+      
+      <!-- 论坛选择器 -->
+      <div style="margin: 8px 0;">
+        <label for="forum-selector" style="font-size: 12px; color: #666;">选择论坛:</label>
+        <select id="forum-selector" style="margin-left: 8px; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px;">
+          <option value="all">全部论坛</option>
+          <option value="linux.do">Linux.do</option>
+          <option value="nodeseek.com">NodeSeek</option>
+        </select>
+      </div>
+      
+      <div style="margin: 8px 0;">
+        <button id="btn-refresh">🔄 刷新推荐</button>
+        <button id="btn-fetch" style="background-color: #28a745; color: white; margin-left: 8px;">📥 抓取所有论坛</button>
+      </div>
+      <div style="font-size: 12px; color: #666; margin-bottom: 8px;">💡 智能推荐</div>
+      <ul id="list"></ul>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+  </html>
+
+
+

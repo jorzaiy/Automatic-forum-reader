@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "多论坛阅读记录与推荐 (Storage版)",
+  "version": "0.3.0",
+  "description": "包含storage模块的版本",
+  "permissions": ["storage", "notifications", "alarms"],
+  "host_permissions": ["https://linux.do/*", "https://www.nodeseek.com/*"],
+  "background": {
+    "scripts": [
+      "background/worker-with-storage.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://linux.do/*"],
+      "js": ["content/reader-tracker.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.nodeseek.com/*"],
+      "js": ["content/reader-tracker.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_popup": "ui/popup.html" },
+  "options_page": "ui/options.html"
+}

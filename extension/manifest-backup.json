@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "多论坛阅读记录与推荐",
+  "version": "0.3.0",
+  "description": "修复了 linux.do 的兼容性问题并重构了抓取器，提高了稳定性和可扩展性。",
+  "permissions": ["storage", "notifications", "alarms"],
+  "host_permissions": ["https://linux.do/*", "https://www.nodeseek.com/*"],
+  "background": {
+    "scripts": [
+      "background/storage-non-module.js",
+      "background/fetcher-non-module.js",
+      "background/recommender-non-module.js",
+      "background/index-non-module.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://linux.do/*"],
+      "js": ["content/reader-tracker.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.nodeseek.com/*"],
+      "js": ["content/reader-tracker.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_popup": "ui/popup.html" },
+  "options_page": "ui/options.html"
+}
+
+

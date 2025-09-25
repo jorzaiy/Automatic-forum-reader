@@ -1,0 +1,42 @@
+<!-- 风格6: 可爱风格 - 小动物 + 消息 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- 背景圆形 -->
+  <circle cx="64" cy="64" r="60" fill="#E91E63" stroke="#C2185B" stroke-width="4"/>
+  
+  <!-- 小动物头像 -->
+  <g transform="translate(64, 50)">
+    <!-- 头部 -->
+    <circle cx="0" cy="0" r="20" fill="#FFE0B2"/>
+    <!-- 耳朵 -->
+    <ellipse cx="-12" cy="-15" rx="6" ry="8" fill="#FFE0B2"/>
+    <ellipse cx="12" cy="-15" rx="6" ry="8" fill="#FFE0B2"/>
+    <!-- 内耳 -->
+    <ellipse cx="-12" cy="-15" rx="3" ry="4" fill="#FFCCBC"/>
+    <ellipse cx="12" cy="-15" rx="3" ry="4" fill="#FFCCBC"/>
+    <!-- 眼睛 -->
+    <circle cx="-8" cy="-5" r="3" fill="#2C3E50"/>
+    <circle cx="8" cy="-5" r="3" fill="#2C3E50"/>
+    <!-- 鼻子 -->
+    <ellipse cx="0" cy="0" rx="2" ry="1.5" fill="#E91E63"/>
+    <!-- 嘴巴 -->
+    <path d="M0 5 Q-5 8 -8 5 Q-5 12 0 10 Q5 12 8 5 Q5 8 0 5" fill="#2C3E50"/>
+  </g>
+  
+  <!-- 消息气泡 -->
+  <g transform="translate(20, 80)">
+    <path d="M15 5 C5 5 0 10 0 20 L0 30 C0 40 5 45 15 45 L25 45 L30 50 L27 45 L15 45 C5 45 0 40 0 30 L0 20 C0 10 5 5 15 5 Z" fill="white"/>
+    <!-- 消息点 -->
+    <circle cx="8" cy="25" r="2" fill="#E91E63"/>
+    <circle cx="15" cy="25" r="2" fill="#E91E63"/>
+    <circle cx="22" cy="25" r="2" fill="#E91E63"/>
+  </g>
+  
+  <!-- 推荐心形 -->
+  <g transform="translate(90, 80)">
+    <path d="M12 6 C8 6 6 8 6 12 C6 16 12 22 12 22 C12 22 18 16 18 12 C18 8 16 6 12 6 Z" fill="#FFD700"/>
+  </g>
+  
+  <!-- 文字 -->
+  <text x="64" y="110" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">论坛助手</text>
+</svg>
+

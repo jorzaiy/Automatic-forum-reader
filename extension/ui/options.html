@@ -214,23 +214,47 @@
           
           <div class="form-group">
             <label>导出数据</label>
-            <button id="btn-export" class="success">📥 导出 JSON 数据</button>
-            <div class="help-text">将所有阅读数据导出为 JSON 文件，用于备份或分析</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button id="btn-export" class="success">📥 导出全部数据</button>
+              <button id="btn-export-reading" class="success">📖 导出阅读数据</button>
+              <button id="btn-export-fetch" class="success">📥 导出抓取数据</button>
+            </div>
+            <div class="help-text">
+              <strong>导出全部数据：</strong>导出所有数据（阅读记录+帖子数据）<br>
+              <strong>导出阅读数据：</strong>仅导出阅读记录、会话和不感兴趣标记<br>
+              <strong>导出抓取数据：</strong>仅导出帖子数据
+            </div>
           </div>
           
           <div class="form-group">
             <label>导入数据</label>
-            <button id="btn-import">📤 导入 JSON 数据</button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button id="btn-import">📤 导入全部数据</button>
+              <button id="btn-import-reading">📖 导入阅读数据</button>
+              <button id="btn-import-fetch">📥 导入抓取数据</button>
+            </div>
             <input type="file" id="file-import" accept=".json" style="display: none;" />
-            <div class="help-text">从 JSON 文件导入阅读记录和偏好数据（不包含帖子数据）</div>
+            <div class="help-text">
+              <strong>导入全部数据：</strong>导入所有数据（阅读记录+帖子数据）<br>
+              <strong>导入阅读数据：</strong>仅导入阅读记录、会话和不感兴趣标记<br>
+              <strong>导入抓取数据：</strong>仅导入帖子数据
+            </div>
             <div id="import-progress" class="status" style="display: none;"></div>
             <div id="import-result" class="status" style="display: none;"></div>
           </div>
           
           <div class="form-group">
             <label>清空数据</label>
-            <button id="btn-clear" class="danger">🗑️ 清空所有数据</button>
-            <div class="help-text">删除所有阅读记录和帖子数据，此操作不可撤销</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button id="btn-clear-reading" class="danger">📖 清空阅读数据</button>
+              <button id="btn-clear-fetch" class="danger">📥 清空抓取数据</button>
+              <button id="btn-clear" class="danger">🗑️ 清空所有数据</button>
+            </div>
+            <div class="help-text">
+              <strong>清空阅读数据：</strong>删除所有阅读记录、会话和不感兴趣标记，保留帖子数据<br>
+              <strong>清空抓取数据：</strong>删除所有帖子数据，保留阅读记录<br>
+              <strong>清空所有数据：</strong>删除所有数据，此操作不可撤销
+            </div>
           </div>
           
           <div id="clear-status" class="status" style="display: none;"></div>

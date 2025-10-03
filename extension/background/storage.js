@@ -184,7 +184,7 @@ async function updateReadEvent(eventData) {
     const eventId = `${eventData.sessionId}_${eventData.threadId}`;
     const now = new Date().toISOString();
     
-    // 先尝试获取现有记录
+    // 先尝试获取现有记录（同一会话）
     const getRequest = store.get(eventId);
     getRequest.onsuccess = () => {
       const existing = getRequest.result;
@@ -219,37 +219,87 @@ async function updateReadEvent(eventData) {
         }
       }
       
-      const event = {
-        eventId,
-        sessionId: eventData.sessionId,
-        threadId: eventData.threadId,
-        url: eventData.url,
-        enterAt: existing ? existing.enterAt : now,
-        leaveAt: now,
-        dwellMsEffective: (existing ? existing.dwellMsEffective : 0) + (eventData.activeMsDelta || 0),
-        maxScrollPct: Math.max(existing ? existing.maxScrollPct : 0, eventData.maxScrollPct || 0),
-        completed: existing ? existing.completed : 0,
-        createdAt: existing ? existing.createdAt : now,
-        updatedAt: now
+      // 检查是否已有该帖子的其他会话记录
+      const threadIndex = store.index('threadId');
+      const threadRequest = threadIndex.getAll(eventData.threadId);
+      threadRequest.onsuccess = () => {
+        const existingThreadEvents = threadRequest.result;
+        
+        if (existingThreadEvents.length > 0) {
+          // 找到最新的记录进行合并
+          const latestEvent = existingThreadEvents.reduce((latest, current) => {
+            return new Date(current.updatedAt) > new Date(latest.updatedAt) ? current : latest;
+          });
+          
+          console.log(`[storage] Found existing thread event for ${eventData.threadId}, merging with latest`);
+          
+          // 合并到最新记录
+          const mergedEvent = {
+            ...latestEvent,
+            leaveAt: now,
+            dwellMsEffective: latestEvent.dwellMsEffective + (eventData.activeMsDelta || 0),
+            maxScrollPct: Math.max(latestEvent.maxScrollPct, eventData.maxScrollPct || 0),
+            updatedAt: now
+          };
+          
+          // 检查是否完成阅读
+          const thresholdMs = thresholds.thresholdSeconds * 1000;
+          if (mergedEvent.dwellMsEffective >= thresholdMs && mergedEvent.maxScrollPct >= thresholds.thresholdScroll) {
+            mergedEvent.completed = 1;
+          }
+          
+          // 删除其他重复记录，只保留合并后的记录
+          const deletePromises = existingThreadEvents.map(event => {
+            return new Promise((deleteResolve, deleteReject) => {
+              const deleteRequest = store.delete(event.eventId);
+              deleteRequest.onsuccess = () => deleteResolve();
+              deleteRequest.onerror = () => deleteReject(deleteRequest.error);
+            });
+          });
+          
+          Promise.all(deletePromises).then(() => {
+            const putRequest = store.put(mergedEvent);
+            putRequest.onsuccess = () => resolve();
+            putRequest.onerror = () => reject(putRequest.error);
+          }).catch(reject);
+          
+          return;
+        }
+        
+        // 没有现有记录，创建新记录
+        const event = {
+          eventId,
+          sessionId: eventData.sessionId,
+          threadId: eventData.threadId,
+          url: eventData.url,
+          enterAt: now,
+          leaveAt: now,
+          dwellMsEffective: eventData.activeMsDelta || 0,
+          maxScrollPct: eventData.maxScrollPct || 0,
+          completed: 0,
+          createdAt: now,
+          updatedAt: now
+        };
+        
+        // 检查是否完成阅读（使用用户设置的阈值）
+        const thresholdMs = thresholds.thresholdSeconds * 1000;
+        console.log('[storage] Checking completion:', {
+          dwellMsEffective: event.dwellMsEffective,
+          thresholdMs,
+          maxScrollPct: event.maxScrollPct,
+          thresholdScroll: thresholds.thresholdScroll,
+          willComplete: event.dwellMsEffective >= thresholdMs && event.maxScrollPct >= thresholds.thresholdScroll
+        });
+        if (event.dwellMsEffective >= thresholdMs && event.maxScrollPct >= thresholds.thresholdScroll) {
+          event.completed = 1;
+          console.log('[storage] Marked as completed!');
+        }
+        
+        const putRequest = store.put(event);
+        putRequest.onsuccess = () => resolve();
+        putRequest.onerror = () => reject(putRequest.error);
       };
-      
-      // 检查是否完成阅读（使用用户设置的阈值）
-      const thresholdMs = thresholds.thresholdSeconds * 1000;
-      console.log('[storage] Checking completion:', {
-        dwellMsEffective: event.dwellMsEffective,
-        thresholdMs,
-        maxScrollPct: event.maxScrollPct,
-        thresholdScroll: thresholds.thresholdScroll,
-        willComplete: event.dwellMsEffective >= thresholdMs && event.maxScrollPct >= thresholds.thresholdScroll
-      });
-      if (event.dwellMsEffective >= thresholdMs && event.maxScrollPct >= thresholds.thresholdScroll) {
-        event.completed = 1;
-        console.log('[storage] Marked as completed!');
-      }
-      
-      const putRequest = store.put(event);
-      putRequest.onsuccess = () => resolve();
-      putRequest.onerror = () => reject(putRequest.error);
+      threadRequest.onerror = () => reject(threadRequest.error);
     };
     getRequest.onerror = () => reject(getRequest.error);
   });
@@ -378,6 +428,11 @@ async function getAllSessions() {
 async function exportAllData() {
   await ensureDb();
   
+  // 导出前自动去重
+  console.log('[storage] Auto-deduplicating before export...');
+  const dedupeResult = await deduplicateReadEvents();
+  console.log(`[storage] Deduplication result:`, dedupeResult);
+  
   const [events, sessions, threads] = await Promise.all([
     getAllReadEvents(),
     getAllSessions(),
@@ -387,6 +442,43 @@ async function exportAllData() {
   return {
     events,
     sessions,
+    threads,
+    exportedAt: new Date().toISOString(),
+    deduplicationInfo: dedupeResult
+  };
+}
+
+// 导出阅读数据
+async function exportReadingData() {
+  await ensureDb();
+  
+  // 导出前自动去重
+  console.log('[storage] Auto-deduplicating before export...');
+  const dedupeResult = await deduplicateReadEvents();
+  console.log(`[storage] Deduplication result:`, dedupeResult);
+  
+  const [events, sessions, dislikedThreads] = await Promise.all([
+    getAllReadEvents(),
+    getAllSessions(),
+    getAllDislikedThreads()
+  ]);
+  
+  return {
+    events,
+    sessions,
+    dislikedThreads,
+    exportedAt: new Date().toISOString(),
+    deduplicationInfo: dedupeResult
+  };
+}
+
+// 导出抓取数据
+async function exportFetchData() {
+  await ensureDb();
+  
+  const threads = await getAllThreads();
+  
+  return {
     threads,
     exportedAt: new Date().toISOString()
   };
@@ -435,6 +527,46 @@ async function clearAllData() {
     
     linuxDoRequest.onerror = () => reject(linuxDoRequest.error);
   });
+}
+
+// 清空阅读数据（保留帖子数据）
+async function clearReadingData() {
+  await ensureDb();
+  
+  const objectStoreNames = ['read_events', 'sessions', 'disliked_threads'];
+  
+  for (const storeName of objectStoreNames) {
+    await new Promise((resolve, reject) => {
+      const transaction = db.transaction([storeName], 'readwrite');
+      const store = transaction.objectStore(storeName);
+      const request = store.clear();
+      
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+  
+  return { success: true, cleared: objectStoreNames };
+}
+
+// 清空抓取数据（保留阅读数据）
+async function clearFetchData() {
+  await ensureDb();
+  
+  const objectStoreNames = ['threads'];
+  
+  for (const storeName of objectStoreNames) {
+    await new Promise((resolve, reject) => {
+      const transaction = db.transaction([storeName], 'readwrite');
+      const store = transaction.objectStore(storeName);
+      const request = store.clear();
+      
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+  
+  return { success: true, cleared: objectStoreNames };
 }
 
 // 添加不感兴趣的帖子
@@ -968,7 +1100,11 @@ export default {
   removeDislikedThread,
   importData,
   exportAllData,
+  exportReadingData,
+  exportFetchData,
   clearAllData,
+  clearReadingData,
+  clearFetchData,
   getStats,
   deduplicateReadEvents,
   getEventsPaginated,

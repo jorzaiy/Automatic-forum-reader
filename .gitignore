@@ -1,0 +1,17 @@
+# 只同步 extension/ 文件夹和 README.md、INSTALL.md 文件
+# 忽略其他所有文件和文件夹
+
+# 忽略所有文件
+*
+
+# 但保留这些文件和文件夹
+!.gitignore
+!extension/
+!README.md
+!INSTALL.md
+
+# 忽略 extension 文件夹中的临时文件
+extension/*.tmp
+extension/*.log
+extension/.DS_Store
+extension/Thumbs.db

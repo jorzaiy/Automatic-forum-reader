@@ -140,9 +140,33 @@ async function handleDatabaseRequest(message, sender, sendResponse) {
         sendResponse({ ok: true, bytes: Array.from(bytes) });
         break;
         
+      case 'db/export-reading':
+        const exportReadingData = await storage.exportReadingData();
+        const readingJsonString = JSON.stringify(exportReadingData, null, 2);
+        const readingBytes = new TextEncoder().encode(readingJsonString);
+        sendResponse({ ok: true, bytes: Array.from(readingBytes) });
+        break;
+        
+      case 'db/export-fetch':
+        const exportFetchData = await storage.exportFetchData();
+        const fetchJsonString = JSON.stringify(exportFetchData, null, 2);
+        const fetchBytes = new TextEncoder().encode(fetchJsonString);
+        sendResponse({ ok: true, bytes: Array.from(fetchBytes) });
+        break;
+        
       case 'db/clear':
         await storage.clearAllData();
         sendResponse({ ok: true });
+        break;
+        
+      case 'db/clear-reading':
+        const clearReadingResult = await storage.clearReadingData();
+        sendResponse({ ok: true, result: clearReadingResult });
+        break;
+        
+      case 'db/clear-fetch':
+        const clearFetchResult = await storage.clearFetchData();
+        sendResponse({ ok: true, result: clearFetchResult });
         break;
         
       case 'db/import':
